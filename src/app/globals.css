@@ -1,0 +1,88 @@
+/* Import Leaflet CSS */
+@import 'leaflet/dist/leaflet.css';
+
+/* Tailwind directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Reset styles */
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Fix Leaflet marker icons */
+.leaflet-default-icon-path {
+  background-image: url(https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png);
+}
+
+.leaflet-default-shadow-path {
+  background-image: url(https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png);
+}
+
+/* Map container styles */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* Add these styles to your existing globals.css */
+
+.pin-marker {
+  width: 30px;
+  height: 30px;
+  background-color: #2563eb;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  position: relative;
+  animation: pin-drop 0.3s ease-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.pin-marker::after {
+  content: '';
+  width: 14px;
+  height: 14px;
+  margin: 8px 0 0 8px;
+  background-color: #fff;
+  position: absolute;
+  border-radius: 50%;
+}
+
+@keyframes pin-drop {
+  0% {
+    transform: rotate(-45deg) scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: rotate(-45deg) scale(1.2);
+  }
+  100% {
+    transform: rotate(-45deg) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Dialog transition */
+.dialog-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.dialog-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms ease-out, transform 300ms ease-out;
+}
+
+.dialog-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dialog-exit-active {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 300ms ease-out, transform 300ms ease-out;
+}
