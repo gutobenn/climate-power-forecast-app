@@ -42,30 +42,19 @@ export default function About() {
             <div>
               <h2 className="text-2xl font-semibold text-gray-800 mb-3">Our Team</h2>
               <p className="text-gray-600 leading-relaxed">
-                RenewableHorizon is developed by a small team consisting of Natalia Weber and Augusto Bennemann.
+                RenewableHorizon is developed by a small team consisting of Natália de Assis Brasil Weber and Augusto Bennemann.
               </p>
             </div>
 
             <div>
               <h2 className="text-2xl font-semibold text-gray-800 mb-3">Future Developments</h2>
               <p className="text-gray-600 leading-relaxed">
-                We're expanding RenewableHorizon to include:
+                We&apos;re expanding RenewableHorizon to include:
               </p>
               <ul className="list-disc list-inside text-gray-600 mt-2 space-y-2">
                 <li>Solar energy potential maps</li>
-                <li>Hydropower resource assessments</li>
-                <li>Combined renewable energy potential visualizations</li>
+                <li>Hydropower energy potential maps</li>
               </ul>
-            </div>
-
-            <div className="pt-4">
-              <h2 className="text-2xl font-semibold text-gray-800 mb-3">Contact</h2>
-              <p className="text-gray-600 leading-relaxed">
-                Have questions or suggestions? We'd love to hear from you. Reach out to us at{' '}
-                <a href="mailto:contact@renewablehorizon.com" className="text-blue-600 hover:text-blue-800">
-                  contact@renewablehorizon.com
-                </a>
-              </p>
             </div>
           </section>
         </div>
