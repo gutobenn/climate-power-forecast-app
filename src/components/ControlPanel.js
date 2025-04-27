@@ -46,8 +46,8 @@ const ControlPanel = ({ selectedYear, selectedEnergyType, onYearChange, onEnergy
             <div className="relative pt-1">
               <input
                 type="range"
-                min="2015"
-                max="2100"
+                min="1970"
+                max="2099"
                 value={selectedYear}
                 onChange={handleSliderChange}
                 onMouseDown={() => setIsSliding(true)}
@@ -56,12 +56,12 @@ const ControlPanel = ({ selectedYear, selectedEnergyType, onYearChange, onEnergy
                 onTouchEnd={() => setIsSliding(false)}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                 style={{
-                  background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${((selectedYear - 2015) / (2100 - 2015)) * 100}%, #e5e7eb ${((selectedYear - 2015) / (2100 - 2015)) * 100}%, #e5e7eb 100%)`
+                  background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${((selectedYear - 1970) / (2099 - 1970)) * 100}%, #e5e7eb ${((selectedYear - 1970) / (2099 - 1970)) * 100}%, #e5e7eb 100%)`
                 }}
               />
               <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>2015</span>
-                <span>2100</span>
+                <span>1970</span>
+                <span>2099</span>
               </div>
               {isSliding && (
                 <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-8 bg-gray-900 text-white px-2 py-1 rounded text-xs">
@@ -78,31 +78,12 @@ const ControlPanel = ({ selectedYear, selectedEnergyType, onYearChange, onEnergy
               onChange={(e) => onEnergyTypeChange(e.target.value)}
               value={selectedEnergyType}
             >
-              <option value="solar">Solar</option>
               <option value="wind">Wind</option>
-              <option value="hydro">Hydro</option>
+              <option value="solar" disabled>Solar</option>
+              <option value="hydro" disabled>Hydro</option>
             </select>
           </div>
 
-          <div className="space-y-3 pt-4 border-t border-gray-200">
-            <label className="flex items-center space-x-3">
-              <input
-                type="checkbox"
-                id="showGrid"
-                className="w-4 h-4 border-gray-300 rounded"
-              />
-              <span className="text-gray-700">Show Grid</span>
-            </label>
-            
-            <label className="flex items-center space-x-3">
-              <input
-                type="checkbox"
-                id="showLabels"
-                className="w-4 h-4 border-gray-300 rounded"
-              />
-              <span className="text-gray-700">Show Labels</span>
-            </label>
-          </div>
         </div>
       )}
     </div>

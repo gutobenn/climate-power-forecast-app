@@ -18,7 +18,7 @@ const Header = () => {
           </div>
           <div>
             <h1 className="text-base font-semibold text-gray-800">
-              Title
+              Renewable Horizon
             </h1>
           </div>
         </Link>

@@ -8,52 +8,62 @@ export default function About() {
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
         <div className="bg-white rounded-lg shadow-lg p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">About Energy Atlas</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-6">About RenewableHorizon</h1>
           
           <section className="space-y-6">
             <div>
               <h2 className="text-2xl font-semibold text-gray-800 mb-3">Our Mission</h2>
               <p className="text-gray-600 leading-relaxed">
-                Energy Atlas is a comprehensive visualization tool designed to track and display renewable energy installations across the globe. Our mission is to provide transparent, accessible data about the world's transition to sustainable energy sources.
+                RenewableHorizon provides interactive maps showing renewable energy potential worldwide from the past to the year 2099. We aim to help researchers, planners, and the public make informed decisions about renewable energy development.
               </p>
             </div>
 
             <div>
-              <h2 className="text-2xl font-semibold text-gray-800 mb-3">Features</h2>
-              <ul className="list-disc list-inside text-gray-600 space-y-2">
-                <li>Interactive global map visualization</li>
-                <li>Historical data from 2020 to 2023</li>
-                <li>Multiple renewable energy types: Wind, Solar, and Hydro</li>
-                <li>Real-time data updates and filtering</li>
-              </ul>
-            </div>
-
-            <div>
-              <h2 className="text-2xl font-semibold text-gray-800 mb-3">How It Works</h2>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-3">What We Offer</h2>
               <p className="text-gray-600 leading-relaxed">
-                Our platform uses advanced mapping technology to visualize energy installation data. The heatmap overlay shows the density and distribution of renewable energy installations, while our filtering tools allow users to explore different time periods and energy types.
+                Our platform currently maps global wind energy potential with historical data and future projections through an easy-to-use interactive interface.
               </p>
             </div>
 
             <div>
               <h2 className="text-2xl font-semibold text-gray-800 mb-3">Data Sources</h2>
               <p className="text-gray-600 leading-relaxed">
-                The data displayed in Energy Atlas comes from various reliable sources, including:
+                RenewableHorizon uses high-quality climate model data from the CORDEX project, specifically:
               </p>
               <ul className="list-disc list-inside text-gray-600 mt-2 space-y-2">
-                <li>International Renewable Energy Agency (IRENA)</li>
-                <li>National Renewable Energy Laboratories</li>
-                <li>Government Energy Departments</li>
-                <li>Public Energy Databases</li>
+                <li><strong>Historical Data:</strong> sfcWind_SAM-22_NCC-NorESM1-M_historical_r1i1p1_GERICS-REMO2015_v1_3hr</li>
+                <li><strong>Future Projections:</strong> sfcWind_SAM-22_MOHC-HadGEM2-ES_rcp85_r1i1p1_GERICS-REMO2015_v1_3hr</li>
+              </ul>
+              <p className="text-gray-600 mt-2">
+                These datasets provide surface wind measurements at 3-hour intervals with comprehensive regional coverage.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-3">Our Team</h2>
+              <p className="text-gray-600 leading-relaxed">
+                RenewableHorizon is developed by a small team consisting of Natalia Weber and Augusto Bennemann.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-3">Future Developments</h2>
+              <p className="text-gray-600 leading-relaxed">
+                We're expanding RenewableHorizon to include:
+              </p>
+              <ul className="list-disc list-inside text-gray-600 mt-2 space-y-2">
+                <li>Solar energy potential maps</li>
+                <li>Hydropower resource assessments</li>
+                <li>Combined renewable energy potential visualizations</li>
               </ul>
             </div>
 
             <div className="pt-4">
-              <h2 className="text-2xl font-semibold text-gray-800 mb-3">Contact Us</h2>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-3">Contact</h2>
               <p className="text-gray-600 leading-relaxed">
                 Have questions or suggestions? We'd love to hear from you. Reach out to us at{' '}
-                <a href="mailto:contact@energyatlas.com" className="text-blue-600 hover:text-blue-800">
-                  contact@energyatlas.com
+                <a href="mailto:contact@renewablehorizon.com" className="text-blue-600 hover:text-blue-800">
+                  contact@renewablehorizon.com
                 </a>
               </p>
             </div>
@@ -62,4 +72,4 @@ export default function About() {
       </main>
     </div>
   );
-} 
+}

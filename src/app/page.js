@@ -18,10 +18,10 @@ export default function Home() {
   
   // Get initial values from URL or use defaults
   const [selectedYear, setSelectedYear] = useState(
-    parseInt(searchParams.get('year')) || 2030
+    parseInt(searchParams.get('year')) || 2025
   );
   const [selectedEnergyType, setSelectedEnergyType] = useState(
-    searchParams.get('type') || 'solar'
+    searchParams.get('type') || 'wind'
   );
   const [selectedPin, setSelectedPin] = useState(
     searchParams.get('pin') ? {
@@ -58,7 +58,7 @@ export default function Home() {
 
   const handleYearChange = (year) => {
     // Ensure year is within valid range
-    const validYear = Math.max(2015, Math.min(2100, parseInt(year)));
+    const validYear = Math.max(1970, Math.min(2100, parseInt(year)));
     setSelectedYear(validYear);
   };
 

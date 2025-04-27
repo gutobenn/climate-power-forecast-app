@@ -44,7 +44,10 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogPosition, setDialogPosition] = useState({ x: 0, y: 0 });
   const [energyData, setEnergyData] = useState(null);
-  const [useHeatmap, setUseHeatmap] = useState(false);  // Toggle between heatmap and image overlay
+  const [useHeatmap, setUseHeatmap] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [overlayOpacity, setOverlayOpacity] = useState(0.7);
+  const imageOverlayRef = useRef(null);
 
   // Expose the map instance through the forwarded ref
   useEffect(() => {
@@ -69,56 +72,47 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
   useEffect(() => {
     const loadData = async () => {
       try {
+        console.log('Starting to load data...');
+        setIsLoading(true);
+        setOverlayOpacity(0); // Hide the overlay when loading new data
         const data = await getEnergyData(selectedEnergyType, selectedYear);
         setEnergyData(data);
       } catch (error) {
         console.error('Error loading energy data:', error);
+        setIsLoading(false);
       }
     };
     loadData();
   }, [selectedYear, selectedEnergyType]);
 
-  // Update heatmap when energy data changes
+  // Handle image overlay events
   useEffect(() => {
-    if (!mapInstanceRef.current || !energyData || !useHeatmap) return;
+    if (imageOverlayRef.current) {
+      const imageOverlay = imageOverlayRef.current;
+      
+      const handleImageLoad = () => {
+        console.log('Image loaded');
+        // Add a small delay to ensure the image is fully rendered
+        setTimeout(() => {
+          setIsLoading(false);
+          setOverlayOpacity(0.7); // Show the overlay once loaded
+        }, 500);
+      };
 
-    // Remove existing heatmap layer if it exists
-    if (heatmapLayerRef.current) {
-      heatmapLayerRef.current.remove();
+      const handleImageError = () => {
+        console.error('Error loading image');
+        setIsLoading(false);
+      };
+
+      imageOverlay.on('load', handleImageLoad);
+      imageOverlay.on('error', handleImageError);
+
+      return () => {
+        imageOverlay.off('load', handleImageLoad);
+        imageOverlay.off('error', handleImageError);
+      };
     }
-
-    // Convert meshgrid data to points for heatmap
-    const points = [];
-    const { lats, lons, values } = energyData;
-    
-    for (let i = 0; i < lats.length; i++) {
-      for (let j = 0; j < lats[i].length; j++) {
-        if (values[i][j] > 0) {
-          points.push([lats[i][j], lons[i][j], values[i][j]]);
-        }
-      }
-    }
-
-    // Create and add new heatmap layer
-    heatmapLayerRef.current = L.heatLayer(points, {
-      radius: 20,    // Reduced radius for sharper boundaries
-      blur: 10,      // Reduced blur for more defined areas
-      maxZoom: 10,
-      max: 400,
-      minOpacity: 0.4,
-      gradient: {
-        0.0: '#ffffcc',  // Light yellow
-        0.2: '#ffeda0',  // Yellow
-        0.4: '#fed976',  // Orange-yellow
-        0.6: '#feb24c',  // Light orange
-        0.7: '#fd8d3c',  // Orange
-        0.8: '#fc4e2a',  // Red-orange
-        0.9: '#e31a1c',  // Red
-        1.0: '#b10026'   // Dark red
-      }
-    }).addTo(mapInstanceRef.current);
-
-  }, [energyData, useHeatmap]);
+  }, [imageOverlayRef.current]);
 
   // Initialize dialog state from URL
   useEffect(() => {
@@ -163,6 +157,8 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
   }, [selectedPin, mapInstanceRef.current]);
 
   const handleMapClick = (latlng) => {
+    // Temporarily disabled dialog functionality
+    /*
     // Generate some mock data for the clicked location
     const mockData = {
       wind: Math.floor(Math.random() * 1000),
@@ -189,6 +185,7 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
       });
       setDialogOpen(true);
     }, 300); // 300ms delay
+    */
   };
 
   const handleDialogClose = () => {
@@ -248,45 +245,27 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
           {/* Add the image overlay */}
           <LayersControl.Overlay checked name="Energy Data">
             <ImageOverlay
-              url="/heatmap.png"
-              bounds={[[-85, -180], [85, 180]]}  // Web Mercator practical bounds
-              opacity={0.7}
+              ref={imageOverlayRef}
+              url={`/plots/export_wind_${selectedYear}.png`}
+              bounds={[[-85, -180], [85, 180]]}
+              opacity={overlayOpacity}
               zIndex={10}
             />
           </LayersControl.Overlay>
-          
-          {/* Debug grid overlay */}
-          <LayersControl.Overlay name="Debug Grid">
-            {Array.from({ length: 17 }).map((_, i) => {
-              const lat = -80 + i * 10;
-              return (
-                <Polyline
-                  key={`lat-${lat}`}
-                  positions={[
-                    [lat, -180],
-                    [lat, 180]
-                  ]}
-                  color="rgba(255,0,0,0.5)"
-                  weight={1}
-                />
-              );
-            })}
-            {Array.from({ length: 37 }).map((_, i) => {
-              const lng = -180 + i * 10;
-              return (
-                <Polyline
-                  key={`lng-${lng}`}
-                  positions={[
-                    [-85, lng],
-                    [85, lng]
-                  ]}
-                  color="rgba(255,0,0,0.5)"
-                  weight={1}
-                />
-              );
-            })}
-          </LayersControl.Overlay>
         </LayersControl>
+
+        {/* Add loading indicator */}
+        {isLoading && (
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[1000]">
+            <div className="bg-white/90 backdrop-blur-sm rounded-lg p-6 shadow-lg flex items-center gap-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
+              <div>
+                <span className="text-gray-800 font-medium text-lg">Loading data for {selectedYear}</span>
+                <p className="text-gray-600 text-sm">Please wait while we update the map...</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Render single marker with transition */}
         {selectedPin && (
@@ -301,6 +280,7 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
         )}
       </MapContainer>
       
+      {/* Temporarily disabled dialog
       {selectedPin && (
         <InfoDialog
           isOpen={dialogOpen}
@@ -310,6 +290,7 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
           screenPosition={dialogPosition}
         />
       )}
+      */}
     </div>
   );
 });
