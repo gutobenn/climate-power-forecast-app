@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ControlPanel from '@/components/ControlPanel';
 import Header from '@/components/Header';
@@ -11,7 +11,7 @@ const Map = dynamic(() => import('@/components/Map'), {
   ssr: false,
 });
 
-export default function Home() {
+function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const mapRef = useRef(null);
@@ -99,5 +99,13 @@ export default function Home() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HomeContent />
+    </Suspense>
   );
 }
