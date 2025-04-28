@@ -4,10 +4,14 @@ import SearchBar from './SearchBar';
 const ControlPanel = ({ selectedYear, selectedEnergyType, onYearChange, onEnergyTypeChange, onLocationSelect }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isSliding, setIsSliding] = useState(false);
+  const [currentSliderValue, setCurrentSliderValue] = useState(selectedYear);
 
   const handleSliderChange = (e) => {
     const year = parseInt(e.target.value);
-    onYearChange(year);
+    setCurrentSliderValue(year);
+    if (!isSliding) {
+      onYearChange(year);
+    }
   };
 
   return (
@@ -48,15 +52,21 @@ const ControlPanel = ({ selectedYear, selectedEnergyType, onYearChange, onEnergy
                 type="range"
                 min="1970"
                 max="2099"
-                value={selectedYear}
+                value={currentSliderValue}
                 onChange={handleSliderChange}
                 onMouseDown={() => setIsSliding(true)}
-                onMouseUp={() => setIsSliding(false)}
+                onMouseUp={() => {
+                  setIsSliding(false);
+                  onYearChange(currentSliderValue);
+                }}
                 onTouchStart={() => setIsSliding(true)}
-                onTouchEnd={() => setIsSliding(false)}
+                onTouchEnd={() => {
+                  setIsSliding(false);
+                  onYearChange(currentSliderValue);
+                }}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                 style={{
-                  background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${((selectedYear - 1970) / (2099 - 1970)) * 100}%, #e5e7eb ${((selectedYear - 1970) / (2099 - 1970)) * 100}%, #e5e7eb 100%)`
+                  background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${((currentSliderValue - 1970) / (2099 - 1970)) * 100}%, #e5e7eb ${((currentSliderValue - 1970) / (2099 - 1970)) * 100}%, #e5e7eb 100%)`
                 }}
               />
               <div className="flex justify-between text-xs text-gray-500 mt-1">
@@ -64,8 +74,13 @@ const ControlPanel = ({ selectedYear, selectedEnergyType, onYearChange, onEnergy
                 <span>2099</span>
               </div>
               {isSliding && (
-                <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-8 bg-gray-900 text-white px-2 py-1 rounded text-xs">
-                  {selectedYear}
+                <div 
+                  className="absolute transform -translate-x-1/2 -translate-y-3 bg-gray-900 text-white px-2 py-1 rounded text-xs"
+                  style={{
+                    left: `${((currentSliderValue - 1970) / (2099 - 1970)) * 100}%`,
+                  }}
+                >
+                  {currentSliderValue}
                 </div>
               )}
             </div>

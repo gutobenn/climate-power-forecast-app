@@ -48,6 +48,7 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
   const [dialogPosition, setDialogPosition] = useState({ x: 0, y: 0 });
   const [energyData, setEnergyData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSliding, setIsSliding] = useState(false);
 
   // Expose the map instance through the forwarded ref
   useEffect(() => {
@@ -82,8 +83,12 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
         setIsLoading(false);
       }
     };
-    loadData();
-  }, [selectedYear, selectedEnergyType]);
+    
+    // Only load data if we're not currently sliding
+    if (!isSliding) {
+      loadData();
+    }
+  }, [selectedYear, selectedEnergyType, isSliding]);
 
   // Initialize dialog state from URL
   useEffect(() => {
@@ -234,8 +239,8 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
   return (
     <div className="w-full h-full">
       <MapContainer
-        center={[20, 0]}
-        zoom={3}
+        center={[-15, -60]}
+        zoom={4}
         className="w-full h-full"
         ref={mapInstanceRef}
         zoomControl={false}

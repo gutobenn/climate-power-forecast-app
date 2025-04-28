@@ -1,7 +1,7 @@
 // Load energy data from JSON file
-const loadEnergyData = async () => {
+const loadEnergyData = async (type, year) => {
   try {
-    const response = await fetch('/data/energy_data_5.json');
+    const response = await fetch(`/data/${type}_${year}.json`);
     if (!response.ok) {
       throw new Error('Failed to load energy data');
     }
@@ -81,7 +81,7 @@ const generateMockData = (type, year) => {
 };
 
 export const getEnergyData = async (type, year) => {
-  const energyData = await loadEnergyData();
+  const energyData = await loadEnergyData(type, year);
   if (!energyData) {
     console.log('Using mock data as fallback');
     return generateMockData(type, year);
