@@ -157,7 +157,7 @@ const GridCanvasLayer = ({ energyData }) => {
       <div style={{
         position: 'absolute',
         bottom: 20,
-        right: 20,
+        left: 20,
         background: 'rgba(255,255,255,0.85)',
         padding: '10px 16px',
         borderRadius: 8,
@@ -172,8 +172,8 @@ const GridCanvasLayer = ({ energyData }) => {
           ))}
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }}>
-          <span style={{ color: '#888', fontSize: 10 }}>0 Kwh</span>
-          <span style={{ color: '#888', fontSize: 10 }}>6000 Kwh</span>
+          <span style={{ color: '#888', fontSize: 10 }}>0 kWh</span>
+          <span style={{ color: '#888', fontSize: 10 }}>6000 kWh</span>
         </div>
       </div>
     </>

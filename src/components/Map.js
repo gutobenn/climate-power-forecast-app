@@ -90,6 +90,43 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
     }
   }, [selectedYear, selectedEnergyType, isSliding]);
 
+  // Update pin data when energy data changes
+  useEffect(() => {
+    if (selectedPin && energyData) {
+      // Find the closest data point to the pin location
+      let closestPoint = null;
+      let minDistance = Infinity;
+      
+      energyData.forEach(point => {
+        const distance = Math.sqrt(
+          Math.pow(point.lat - selectedPin.lat, 2) + 
+          Math.pow(point.lon - selectedPin.lng, 2)
+        );
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestPoint = point;
+        }
+      });
+      
+      // Only update if we found a data point within a reasonable distance
+      if (closestPoint && minDistance < 1.0) {
+        const newWindValue = Math.round(closestPoint.value);
+        // Only update if the value has actually changed
+        if (newWindValue !== selectedPin.data.wind) {
+          onPinChange({
+            ...selectedPin,
+            data: {
+              wind: newWindValue,
+              solar: 0,
+              hydro: 0,
+              bestType: 'wind'
+            }
+          });
+        }
+      }
+    }
+  }, [energyData, selectedPin, onPinChange]);
+
   // Initialize dialog state from URL
   useEffect(() => {
     if (selectedPin?.isOpen) {
@@ -248,7 +285,7 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
       >
         <LabelsPaneSetup />
         <MapClickHandler onMapClick={handleMapClick} />
-        <LayersControl position="topright">
+        <LayersControl position="bottomright">
           <LayersControl.BaseLayer checked name="OpenStreetMap">
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; CartoDB'
@@ -256,12 +293,14 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
             />
           </LayersControl.BaseLayer>
           
+          {/* Satellite layer option - currently disabled
           <LayersControl.BaseLayer name="Satellite">
             <TileLayer
               attribution='&copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
               url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
             />
           </LayersControl.BaseLayer>
+          */}
         </LayersControl>
         {/* Labels-only tile layer in custom pane */}
         <TileLayer
@@ -306,6 +345,7 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
           position={selectedPin}
           data={selectedPin.data}
           screenPosition={dialogPosition}
+          energyData={energyData}
         />
       )}
     </div>
