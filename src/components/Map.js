@@ -1,12 +1,15 @@
 'use client';
 
-import { MapContainer, TileLayer, LayersControl, useMapEvents, Marker, ImageOverlay, Polyline } from 'react-leaflet';
+import { MapContainer, TileLayer, LayersControl, useMapEvents, Marker, Polyline, Rectangle } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useState, useEffect, useRef, useMemo, forwardRef } from 'react';
 import L from 'leaflet';
 import 'leaflet.heat';
 import { getEnergyData } from '@/services/energyData';
 import InfoDialog from './InfoDialog';
+import GridCanvasLayer from './GridCanvasLayer';
+import { useMap } from 'react-leaflet';
+import LabelsPaneSetup from './LabelsPaneSetup';
 
 // Click handler component
 const MapClickHandler = ({ onMapClick }) => {
@@ -44,10 +47,7 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogPosition, setDialogPosition] = useState({ x: 0, y: 0 });
   const [energyData, setEnergyData] = useState(null);
-  const [useHeatmap, setUseHeatmap] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [overlayOpacity, setOverlayOpacity] = useState(0.7);
-  const imageOverlayRef = useRef(null);
 
   // Expose the map instance through the forwarded ref
   useEffect(() => {
@@ -74,9 +74,9 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
       try {
         console.log('Starting to load data...');
         setIsLoading(true);
-        setOverlayOpacity(0); // Hide the overlay when loading new data
         const data = await getEnergyData(selectedEnergyType, selectedYear);
         setEnergyData(data);
+        setIsLoading(false);
       } catch (error) {
         console.error('Error loading energy data:', error);
         setIsLoading(false);
@@ -84,35 +84,6 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
     };
     loadData();
   }, [selectedYear, selectedEnergyType]);
-
-  // Handle image overlay events
-  useEffect(() => {
-    if (imageOverlayRef.current) {
-      const imageOverlay = imageOverlayRef.current;
-      
-      const handleImageLoad = () => {
-        console.log('Image loaded');
-        // Add a small delay to ensure the image is fully rendered
-        setTimeout(() => {
-          setIsLoading(false);
-          setOverlayOpacity(0.7); // Show the overlay once loaded
-        }, 500);
-      };
-
-      const handleImageError = () => {
-        console.error('Error loading image');
-        setIsLoading(false);
-      };
-
-      imageOverlay.on('load', handleImageLoad);
-      imageOverlay.on('error', handleImageError);
-
-      return () => {
-        imageOverlay.off('load', handleImageLoad);
-        imageOverlay.off('error', handleImageError);
-      };
-    }
-  }, [imageOverlayRef.current]);
 
   // Initialize dialog state from URL
   useEffect(() => {
@@ -157,35 +128,58 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
   }, [selectedPin, mapInstanceRef.current]);
 
   const handleMapClick = (latlng) => {
-    // Temporarily disabled dialog functionality
-    /*
-    // Generate some mock data for the clicked location
-    const mockData = {
-      wind: Math.floor(Math.random() * 1000),
-      solar: Math.floor(Math.random() * 1500),
-      hydro: Math.floor(Math.random() * 800),
-      bestType: ['wind', 'solar', 'hydro'][Math.floor(Math.random() * 3)]
-    };
+    // Find the closest data point to the clicked location
+    let closestPoint = null;
+    let minDistance = Infinity;
     
-    // Update pin with new location
-    onPinChange({
-      lat: latlng.lat,
-      lng: latlng.lng,
-      isOpen: false,
-      data: mockData
-    });
-
-    // Add a small delay before opening the dialog
-    setTimeout(() => {
+    if (energyData) {
+      energyData.forEach(point => {
+        const distance = Math.sqrt(
+          Math.pow(point.lat - latlng.lat, 2) + 
+          Math.pow(point.lon - latlng.lng, 2)
+        );
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestPoint = point;
+        }
+      });
+    }
+    
+    // Only update pin if we found a data point within a reasonable distance
+    if (closestPoint && minDistance < 1.0) { // 1 degree is roughly 111km
+      // Update pin with new location and data
       onPinChange({
         lat: latlng.lat,
         lng: latlng.lng,
-        isOpen: true,
-        data: mockData
+        isOpen: false,
+        data: {
+          wind: Math.round(closestPoint.value),
+          solar: 0, // These will be added when we have solar data
+          hydro: 0, // These will be added when we have hydro data
+          bestType: 'wind' // Default to wind since that's what we have data for
+        }
       });
-      setDialogOpen(true);
-    }, 300); // 300ms delay
-    */
+
+      // Add a small delay before opening the dialog
+      setTimeout(() => {
+        onPinChange({
+          lat: latlng.lat,
+          lng: latlng.lng,
+          isOpen: true,
+          data: {
+            wind: Math.round(closestPoint.value),
+            solar: 0,
+            hydro: 0,
+            bestType: 'wind'
+          }
+        });
+        setDialogOpen(true);
+      }, 300); // 300ms delay
+    } else {
+      // If no data point found, remove the pin
+      onPinChange(null);
+      setDialogOpen(false);
+    }
   };
 
   const handleDialogClose = () => {
@@ -216,6 +210,27 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
       iconAnchor: [15, 30]
     }), []);
 
+  // Helper to calculate bounds for 11x11km cell centered at lat/lon
+  function getCellBounds(lat, lon) {
+    const halfSideKm = 5.5; // half of 11km
+    const latOffset = halfSideKm / 111; // degrees
+    const lonOffset = halfSideKm / (111 * Math.cos(lat * Math.PI / 180));
+    return [
+      [lat - latOffset, lon - lonOffset], // SW
+      [lat + latOffset, lon + lonOffset]  // NE
+    ];
+  }
+
+  // Helper to get color for a value
+  function getColor(normalizedValue) {
+    if (normalizedValue <= 0.2) return 'blue';
+    if (normalizedValue <= 0.4) return 'cyan';
+    if (normalizedValue <= 0.6) return 'lime';
+    if (normalizedValue <= 0.8) return 'yellow';
+    if (normalizedValue <= 0.9) return 'orange';
+    return 'red';
+  }
+
   return (
     <div className="w-full h-full">
       <MapContainer
@@ -226,12 +241,13 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
         zoomControl={false}
         doubleClickZoom={true}
       >
+        <LabelsPaneSetup />
         <MapClickHandler onMapClick={handleMapClick} />
         <LayersControl position="topright">
           <LayersControl.BaseLayer checked name="OpenStreetMap">
             <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; CartoDB'
+              url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png"
             />
           </LayersControl.BaseLayer>
           
@@ -241,18 +257,13 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
               url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
             />
           </LayersControl.BaseLayer>
-
-          {/* Add the image overlay */}
-          <LayersControl.Overlay checked name="Energy Data">
-            <ImageOverlay
-              ref={imageOverlayRef}
-              url={`/plots/export_wind_${selectedYear}.png`}
-              bounds={[[-85, -180], [85, 180]]}
-              opacity={overlayOpacity}
-              zIndex={10}
-            />
-          </LayersControl.Overlay>
         </LayersControl>
+        {/* Labels-only tile layer in custom pane */}
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; CartoDB'
+          url="https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png"
+          pane="labels"
+        />
 
         {/* Add loading indicator */}
         {isLoading && (
@@ -267,6 +278,9 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
           </div>
         )}
 
+        {/* Render grid cells as rectangles */}
+        {energyData && <GridCanvasLayer energyData={energyData} />}
+
         {/* Render single marker with transition */}
         {selectedPin && (
           <Marker
@@ -280,7 +294,6 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
         )}
       </MapContainer>
       
-      {/* Temporarily disabled dialog
       {selectedPin && (
         <InfoDialog
           isOpen={dialogOpen}
@@ -290,7 +303,6 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
           screenPosition={dialogPosition}
         />
       )}
-      */}
     </div>
   );
 });

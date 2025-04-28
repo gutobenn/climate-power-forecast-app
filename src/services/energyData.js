@@ -1,18 +1,14 @@
 // Load energy data from JSON file
 const loadEnergyData = async () => {
   try {
-    const response = await fetch('/data/energy_data.json');
+    const response = await fetch('/data/energy_data_5.json');
     if (!response.ok) {
       throw new Error('Failed to load energy data');
     }
     const data = await response.json();
     console.log('Loaded data structure:', {
-      latsLength: data.lats.length,
-      lonsLength: data.lons.length,
-      valuesLength: data.values.length,
-      sampleLat: data.lats[0][0],
-      sampleLon: data.lons[0][0],
-      sampleValue: data.values[0][0]
+      pointsLength: data.points.length,
+      samplePoint: data.points[0]
     });
     return data;
   } catch (error) {
@@ -33,7 +29,7 @@ const generateMockData = (type, year) => {
         for (let lng = -180; lng <= 180; lng += 10) {
           const intensity = Math.abs(lat) / 90 * Math.random() * 100;
           if (intensity > 30) { // Only show significant wind areas
-            data.push([lat, lng, intensity]);
+            data.push({ lat, lon: lng, value: intensity });
           }
         }
       }
@@ -45,7 +41,7 @@ const generateMockData = (type, year) => {
         for (let lng = -180; lng <= 180; lng += 10) {
           const intensity = (1 - Math.abs(lat) / 60) * Math.random() * 100;
           if (intensity > 30) { // Only show significant solar areas
-            data.push([lat, lng, intensity]);
+            data.push({ lat, lon: lng, value: intensity });
           }
         }
       }
@@ -63,14 +59,14 @@ const generateMockData = (type, year) => {
       ];
       
       hydroPoints.forEach(([lat, lng]) => {
-        data.push([lat, lng, 75 + Math.random() * 25]);
+        data.push({ lat, lon: lng, value: 75 + Math.random() * 25 });
         // Add some nearby points to create clusters
         for (let i = 0; i < 3; i++) {
-          data.push([
-            lat + (Math.random() - 0.5) * 2,
-            lng + (Math.random() - 0.5) * 2,
-            50 + Math.random() * 25
-          ]);
+          data.push({
+            lat: lat + (Math.random() - 0.5) * 2,
+            lon: lng + (Math.random() - 0.5) * 2,
+            value: 50 + Math.random() * 25
+          });
         }
       });
       break;
@@ -78,22 +74,19 @@ const generateMockData = (type, year) => {
   
   // Add year variation (just for demonstration)
   const yearFactor = 1 + ((year - 2020) * 0.1); // 10% increase per year
-  return data.map(([lat, lng, intensity]) => [lat, lng, intensity * yearFactor]);
+  return data.map(point => ({
+    ...point,
+    value: point.value * yearFactor
+  }));
 };
 
 export const getEnergyData = async (type, year) => {
   const energyData = await loadEnergyData();
   if (!energyData) {
-    console.log('Using mock data as fallback'); // TODO tirar
+    console.log('Using mock data as fallback');
     return generateMockData(type, year);
   }
 
-  console.log(energyData);
-
-  // Return the raw meshgrid data for heatmap visualization
-  return {
-    lats: energyData.lats,
-    lons: energyData.lons,
-    values: energyData.values
-  };
+  // Return the points array for heatmap visualization
+  return energyData.points;
 }; 

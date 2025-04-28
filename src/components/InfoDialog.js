@@ -49,8 +49,9 @@ const InfoDialog = ({ isOpen, onClose, data, position, screenPosition }) => {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span>Wind Power:</span>
-                <span className="font-medium">{data.wind} MW</span>
+                <span className="font-medium">{data.wind} KWh</span>
               </div>
+              {/*
               <div className="flex justify-between">
                 <span>Solar Power:</span>
                 <span className="font-medium">{data.solar} MW</span>
@@ -59,11 +60,8 @@ const InfoDialog = ({ isOpen, onClose, data, position, screenPosition }) => {
                 <span>Hydro Power:</span>
                 <span className="font-medium">{data.hydro} MW</span>
               </div>
+              */}
             </div>
-          </div>
-          <div>
-            <h4 className="text-sm font-medium text-gray-500">Recommended Type</h4>
-            <p className="text-sm font-medium capitalize">{data.bestType}</p>
           </div>
         </div>
       </div>
