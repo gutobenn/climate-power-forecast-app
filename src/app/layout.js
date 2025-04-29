@@ -1,7 +1,7 @@
 import './globals.css'
 
 export const metadata = {
-  title: 'Renewable Horizon',
+  title: 'Climate Power Forecast',
   description: '',
 }
 
