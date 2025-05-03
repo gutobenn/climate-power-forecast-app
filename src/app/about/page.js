@@ -7,9 +7,25 @@ export default function About() {
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">About Climate Power Forecast</h1>
-          
+        {/* Introduction Video Section */}
+        <div className="mb-10">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-3">About Climate Power Forecast Video</h2>
+          <div className="aspect-w-16 aspect-h-9 w-full rounded-lg overflow-hidden shadow mb-4">
+            <iframe
+              width="100%"
+              height="400"
+              src="https://www.youtube.com/embed/U5kS1eaH7hI"
+              title="Climate Power Forecast Introduction Video"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          </div>
+          <p className="text-gray-600 leading-relaxed">
+            Watch this short video for an overview of Climate Power Forecast. The video demonstrates the platform&apos;s main functionalities, and provides a deeper look into the methodology behind our data processing and projections.
+          </p>
+        </div>
+        <div className="bg-white rounded-lg shadow-lg p-8">          
           <section className="space-y-6">
             <div>
               <h2 className="text-2xl font-semibold text-gray-800 mb-3">Our Mission</h2>
