@@ -13,6 +13,7 @@ Climate Power Forecast is an interactive web platform that visualizes renewable 
 - [Future Developments](#future-developments)
 - [Contributing](#contributing)
 - [License](#license)
+- [Data & Notebooks Repository](#data-notebooks-repository)
 
 ---
 

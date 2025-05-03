@@ -9,7 +9,7 @@ export default function About() {
       <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
         {/* Introduction Video Section */}
         <div className="mb-10">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-3">About Climate Power Forecast Video</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-3">About Climate Power Forecast</h2>
           <div className="aspect-w-16 aspect-h-9 w-full rounded-lg overflow-hidden shadow mb-4">
             <iframe
               width="100%"
@@ -73,6 +73,22 @@ export default function About() {
               </ul>
             </div>
           </section>
+          {/* Project Repositories Section */}
+          <div className="mt-10 border-t pt-8">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-3">Project Repositories</h2>
+            <ul className="list-disc list-inside text-gray-600 space-y-2">
+              <li>
+                <a href="https://github.com/natiweber/ClimatePowerForecast" className="text-blue-600 underline hover:text-blue-800" target="_blank" rel="noopener noreferrer">
+                  Data & Notebooks Repository
+                </a> – Contains data, analysis notebooks, and supplementary materials related to Climate Power Forecast.
+              </li>
+              <li>
+                <a href="https://github.com/gutobenn/climate-power-forecast-app/" className="text-blue-600 underline hover:text-blue-800" target="_blank" rel="noopener noreferrer">
+                  Application Code Repository
+                </a> – Contains the source code for this web application.
+              </li>
+            </ul>
+          </div>
         </div>
       </main>
     </div>
