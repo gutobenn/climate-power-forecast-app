@@ -41,17 +41,25 @@ const InfoDialog = ({ isOpen, onClose, data, position, screenPosition, energyDat
       
       try {
         setIsLoading(true);
-        const response = await fetch(`/data/detailed_locations/location_${lat}_${lng}.json`);
+        // Locations are packed in 1x1 degree tiles (scripts/pack-locations.mjs)
+        const tile = `${Math.floor(Number(lat))}_${Math.floor(Number(lng))}`;
+        const response = await fetch(`/data/locations/${tile}.json`);
         if (!response.ok) {
           throw new Error('Failed to fetch yearly data');
         }
-        const rawData = await response.json();
+        const { firstYear, points } = await response.json();
+        const location = points.find(
+          ([pointLat, pointLng]) => pointLat.toFixed(6) === lat && pointLng.toFixed(6) === lng
+        );
+        if (!location) {
+          throw new Error('Location not found in its tile');
+        }
         
         // Transform the data into the format Recharts expects
-        const transformedData = Object.entries(rawData.data).map(([year, value]) => ({
-          year: parseInt(year),
+        const transformedData = location[2].map((value, index) => ({
+          year: firstYear + index,
           value: Math.round(value)
-        })).sort((a, b) => a.year - b.year);
+        }));
         
         setYearlyData(transformedData);
       } catch (error) {

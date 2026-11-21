@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "climate-power-forecast",
+  "compatibility_date": "2026-11-01",
+  "account_id": "8b41f2063ab9277d91a18eb423dd5227",
+  "workers_dev": true,
+  "assets": {
+    "directory": "./out",
+    "not_found_handling": "404-page"
+  },
+  "routes": [
+    { "pattern": "climatepowerforecast.augusto.dev", "custom_domain": true }
+  ]
+}

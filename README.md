@@ -74,6 +74,16 @@ Climate Power Forecast uses climate model data from the CORDEX project:
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+### Build and deploy
+
+The site is a static export (`out/`) served by a Cloudflare Worker at https://climatepowerforecast.augusto.dev (config: `wrangler.jsonc`).
+
+- `npm run build` first runs `scripts/pack-locations.mjs`. It packs the per-location files in `data/detailed_locations/` into 1x1 degree tiles in `public/data/locations/`, because Workers static assets allow 20,000 files per deploy.
+- `npm start` serves `out/` locally with `wrangler dev` on http://localhost:8787.
+- `npm run deploy` builds and deploys.
+- The base map is [OpenFreeMap](https://openfreemap.org) (Positron style, no API key), drawn with MapLibre through `@maplibre/maplibre-gl-leaflet`.
+- `data/plots/` holds the yearly map images. The app does not use them, so they are not deployed.
+
 ---
 
 ## Project Structure

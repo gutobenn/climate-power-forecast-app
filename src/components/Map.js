@@ -10,6 +10,7 @@ import InfoDialog from './InfoDialog';
 import GridCanvasLayer from './GridCanvasLayer';
 import { useMap } from 'react-leaflet';
 import LabelsPaneSetup from './LabelsPaneSetup';
+import { MapLibreLayer, OPENFREEMAP_ATTRIBUTION, usePositronStyles } from './OpenFreeMapLayer';
 
 // Click handler component
 const MapClickHandler = ({ onMapClick }) => {
@@ -49,6 +50,7 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
   const [energyData, setEnergyData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSliding, setIsSliding] = useState(false);
+  const basemap = usePositronStyles();
 
   // Expose the map instance through the forwarded ref
   useEffect(() => {
@@ -286,12 +288,11 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
         <LabelsPaneSetup />
         <MapClickHandler onMapClick={handleMapClick} />
         <LayersControl position="bottomright">
-          <LayersControl.BaseLayer checked name="OpenStreetMap">
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; CartoDB'
-              url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png"
-            />
-          </LayersControl.BaseLayer>
+          {basemap && (
+            <LayersControl.BaseLayer checked name="OpenStreetMap">
+              <MapLibreLayer style={basemap.base} attribution={OPENFREEMAP_ATTRIBUTION} />
+            </LayersControl.BaseLayer>
+          )}
           
           {/* Satellite layer option - currently disabled
           <LayersControl.BaseLayer name="Satellite">
@@ -302,12 +303,8 @@ const Map = forwardRef(({ selectedYear, selectedEnergyType, selectedPin, onPinCh
           </LayersControl.BaseLayer>
           */}
         </LayersControl>
-        {/* Labels-only tile layer in custom pane */}
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; CartoDB'
-          url="https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png"
-          pane="labels"
-        />
+        {/* Labels-only layer in custom pane, above the data */}
+        {basemap && <MapLibreLayer style={basemap.labels} pane="labels" />}
 
         {/* Add loading indicator */}
         {isLoading && (
